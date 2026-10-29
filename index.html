@@ -52,6 +52,7 @@
     <main class="content">
       <div class="page-hdr"><div><div class="overline">REGULATION MONITORING</div><h1 id="page-title">최근 점검 자료</h1><p id="page-subtitle">최근 점검에서 확인된 게시물을 게시일 순으로 표시합니다. 제목을 누르면 공식 자료로 이동합니다.</p></div><a class="soft-button" id="github-link" href="https://github.com/Leehonghun/cheongma-law-portal" target="_blank" rel="noopener noreferrer">⌁ &nbsp; 공개 사이트 저장소 보기</a></div>
       <div class="info" id="intro-notice"><span class="info-icon">ⓘ</span><span><strong>이 화면은 실제 수집 결과의 시범판입니다.</strong> 게시물이 표시됐다는 이유만으로 '오늘 신규' 또는 '법규 개정'으로 판정하지 않습니다. 일부 자료는 원문 링크가 아니라 공식 게시판으로 연결되며, 데이터는 자동 실시간 갱신되지 않습니다.</span></div>
+      <div id="law-api-status" class="notice-line" style="margin-bottom:14px" role="status">법제처 전국 자치법규 API: 인증 및 연결 상태 확인 중 · 미확인 자료는 최신 법규로 판정하지 않습니다.</div>
       <div class="stats" id="stats"></div>
       <section class="section" id="view-today"><div class="section-head"><h2>최근 확인된 공식 게시물</h2><small>제목을 누르면 공식 원문 또는 게시판으로 이동</small></div><div class="notice-line" style="margin-bottom:14px">현재 수집 결과는 <b>2026년 10월 28일 초기 기준선</b>입니다. 이전 점검과 비교한 신규·개정 확정 내역이 아니며 원문 주소가 미확인된 자료는 게시판으로 연결합니다.</div><div class="panel" id="latest-post-list" aria-label="최근 게시물 목록"></div><div class="home-actions"><button class="soft-button" id="all-posts-button" type="button">전체 게시물 보기</button><button class="soft-button" id="source-status-button" type="button">기관별 점검 현황</button></div></section>
       <section class="section hide" id="view-feed">
@@ -115,7 +116,8 @@ function renderToday(){
  root.replaceChildren();
  const fresh=Array.isArray(DATA.newly_observed)?new Set(DATA.newly_observed):new Set();
  const changed=DATA.records.filter(r=>fresh.has(r.key));
- const feed=(changed.length?changed:DATA.records.filter(r=>r.date&&(r.verified_update||r.date<=DATA.last_source_check))).slice(0,14);
+ const live=DATA.records.filter(r=>r.verified_update);
+ const feed=(live.length?live:(changed.length?changed:DATA.records.filter(r=>r.date&&r.date<=DATA.last_source_check))).slice(0,14);
  const banner=document.createElement('div');banner.className='latest-summary';
  banner.textContent=DATA.live_record_count?('지자체 최신 검증 '+DATA.live_record_count+'건 ('+DATA.live_source_check+') · 그 외 기존 821건은 2026.10.28 시범 자료 · 개정 확정 아님'):(DATA.last_source_check+' 시범 수집 기준 · 최근 게시물 '+feed.length+'건 표시 · 개정 확정 아님');
  root.append(banner);
@@ -233,8 +235,10 @@ async function loadOfficialPublicFeed(){
   }
   DATA.records.push(...additions);
   DATA.records.sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||String(a.key).localeCompare(String(b.key)));
-  DATA.live_record_count=additions.length;
+  DATA.live_record_count=feed.notice_count;
   DATA.live_source_check=feed.last_verified_kst;
+  const pulse=document.querySelector('.top-pulse');
+  if(pulse)pulse.textContent='● 전북 공식 게시물 검증 완료 · 전국 전체 검증 아님';
   $('nav-count').textContent=DATA.records.length;
   $('intro-notice').textContent='공식 수집 검증 현황: 지자체 전북 고시·공고 '+feed.notice_count+
     '건 ('+feed.last_verified_kst+' 검증) / 기타 기존 821건은 2026.10.28 시범 자료입니다. '+
@@ -247,8 +251,58 @@ async function loadOfficialPublicFeed(){
  }
 }
 
+async function loadLawApiFeed(){
+ const status=$('law-api-status');
+ try{
+  const response=await fetch(new URL('./verified-ordinances.json',document.baseURI),{cache:'no-store'});
+  if(!response.ok)throw Error('LAW API feed unavailable');
+  const feed=await response.json();
+  if(feed.schema_version!==1||feed.source_id!=='LAW_ORDIN_2026')throw Error('Untrusted source');
+  if(feed.status==='not_connected'){
+   status.textContent='법제처 전국 자치법규 API: 인증값 미설정 · 미점검 (0건 확인이 아님). 전북 공식 고시·공고 수집은 별도 작동합니다.';
+   return;
+  }
+  const required=['녹색건축','건축물 에너지','제로에너지','에너지절약','친환경주택','장수명주택'];
+  if(feed.status!=='verified'||!Array.isArray(feed.records)||feed.records.length>3000||
+    !Array.isArray(feed.terms_verified)||JSON.stringify(feed.terms_verified)!==JSON.stringify(required)||
+    feed.original_body_and_attachments_verified!==false||feed.legal_changes_confirmed!==false||
+    !Number.isFinite(Date.parse(feed.last_verified_kst))||
+    !/^\d{4}-\d{2}-\d{2}$/.test(feed.scope_start)||!/^\d{4}-\d{2}-\d{2}$/.test(feed.scope_end))throw Error('LAW API scope not verified');
+  const existed=new Set(DATA.records.map(r=>r.key));
+  const ids=new Set();
+  const additions=[];
+  for(const x of feed.records){
+   if(!x||typeof x.id!=='string'||!/^LAW_ORDIN_2026:\d+$/.test(x.id)||ids.has(x.id)||
+     typeof x.title!=='string'||!x.title.trim()||typeof x.institution!=='string'||!x.institution.trim()||
+     !/^\d{4}-\d{2}-\d{2}$/.test(x.published_at)||x.published_at<feed.scope_start||x.published_at>feed.scope_end||
+     x.url!=='https://www.law.go.kr/ordinInfoP.do?ordinSeq='+x.id.split(':')[1])throw Error('Invalid ordinance metadata');
+   ids.add(x.id);
+   if(existed.has(x.id))continue;
+   additions.push({
+    key:x.id,group:'지자체',source:x.institution,channel:'법제처 공식 자치법규 API · 제목 검색 6개 용어',
+    post_id:x.id,title:x.title,date:x.published_at,url:x.url,link_type:'direct',
+    attachments:[],description:(x.revision_type||'제·개정 구분 미기재')+' · '+(x.notice_no||'공포번호 미기재')+' · 원문·부칙 검토 전',
+    detail_verified:false,coverage:'법제처 API 메타데이터 확인 · 원문 및 영향 미판정',
+    id_verified:true,verified_update:true
+   });
+  }
+  DATA.records.push(...additions);
+  DATA.records.sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||String(a.key).localeCompare(String(b.key)));
+  DATA.live_record_count=(DATA.live_record_count||0)+feed.records.length;
+  DATA.live_source_check=feed.last_verified_kst;
+  $('nav-count').textContent=DATA.records.length;
+  status.textContent='법제처 자치법규 API: '+feed.records.length+'건 메타데이터 검증 ('+feed.last_verified_kst+
+   ', '+feed.scope_start+'~'+feed.scope_end+') · 6개 제목 검색어 범위 · 본문/첨부/법규 개정 실무영향 미검증';
+  page=0;chips();renderRows();renderToday();
+  if(activeTab==='feed')tab('feed');
+ }catch(e){
+  status.textContent='법제처 API 결과 미확인 · 연결 실패 또는 검증 불가. 이전 확인 자료만 보존합니다.';
+  console.warn('LAW API feed unavailable/unverified; no false zero-result claim.');
+ }
+}
+
 $('nav-count').textContent=DATA.records.length;$('manual-count').textContent=DATA.manual.length;stats();chips();renderToday();renderRows();renderSources();renderManual();
-loadOfficialPublicFeed();
+loadOfficialPublicFeed().then(loadLawApiFeed);
 $('search').addEventListener('input',()=>{page=0;renderRows()});$('date-filter').addEventListener('change',()=>{page=0;renderRows()});$('detail-filter').addEventListener('change',()=>{page=0;renderRows()});
 $('radar-toggle').onclick=()=>{if(!RADAR_TABS.has(activeTab))tab('today');else setRadarOpen($('radar-subnav').hidden)};
 $('stats').addEventListener('click',e=>{const button=e.target.closest('[data-kpi]');if(button)openKpi(button.dataset.kpi,button)});
