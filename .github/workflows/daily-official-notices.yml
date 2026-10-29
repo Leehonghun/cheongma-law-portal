@@ -4,17 +4,21 @@ on:
     branches: [main]
     paths:
       - scripts/sync_public_official_notices.py
+      - scripts/sync_law_ordinances.py
       - tests/test_daily_public_sync.py
+      - tests/test_law_ordinances.py
       - .github/workflows/daily-official-notices.yml
   pull_request:
     paths:
       - scripts/sync_public_official_notices.py
+      - scripts/sync_law_ordinances.py
       - tests/test_daily_public_sync.py
+      - tests/test_law_ordinances.py
       - .github/workflows/daily-official-notices.yml
   workflow_dispatch:
   schedule:
-    # 09:10 UTC = 18:10 KST on weekdays.
-    - cron: '10 9 * * 1-5'
+    # 08:40 UTC = 17:40 KST on weekdays. Scheduled runs can be delayed.
+    - cron: '40 8 * * 1-5'
 concurrency:
   group: public-official-notices
   cancel-in-progress: false
@@ -69,6 +73,11 @@ jobs:
       - name: Verify every official result page and safely refresh public JSON
         if: steps.workday.outputs.execute == 'true'
         run: python -m scripts.sync_public_official_notices
+      - name: Read LAW OPEN DATA ordinances (requires GitHub Secret LAW_OC)
+        if: steps.workday.outputs.execute == 'true'
+        env:
+          LAW_OC: ${{ secrets.LAW_OC }}
+        run: python -m scripts.sync_law_ordinances
       - name: Confirm final public data schema
         if: steps.workday.outputs.execute == 'true'
         run: python -m unittest discover -s tests -v
@@ -79,11 +88,11 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- verified-notices.json
+          git add -- verified-notices.json verified-ordinances.json
           if git diff --cached --quiet; then
             echo "No change in verified public data"
           else
-            git commit -m "data: verify official Jeonbuk title-search pages"
+            git commit -m "data: refresh verified official and LAW API feeds"
             git push origin HEAD:main
           fi
       - name: Upload collection audit, including failed attempts
