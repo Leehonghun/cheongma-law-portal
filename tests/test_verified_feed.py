@@ -25,8 +25,14 @@ def sample():
     }
 
 class FeedTests(unittest.TestCase):
-    def test_current_unconnected_screen(self):
-        self.assertEqual(validate_site(ROOT), "not_connected")
+    def test_published_official_feed_matches_schema(self):
+        status = validate_site(ROOT)
+        self.assertTrue(status.startswith("verified_records:"), status)
+        x=json.loads((ROOT/"verified-notices.json").read_text(encoding="utf-8"))
+        self.assertEqual(status, f"verified_records:{x['notice_count']}")
+        self.assertEqual(x["search_terms_verified"], 9)
+        self.assertFalse(x["legal_changes_confirmed"])
+        self.assertFalse(x["original_body_and_attachments_verified"])
     def test_strict_valid_example(self):
         self.assertEqual(validate(sample()), "verified_records:1")
     def test_disallowed_metadata(self):
@@ -45,7 +51,13 @@ class FeedTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate(x)
     def test_unconnected_is_not_verified_zero(self):
-        x=json.loads((ROOT/"verified-notices.json").read_text(encoding="utf-8"))
+        x={"schema_version":1,"status":"not_connected",
+           "source_id":"S24_JEONBUK_GOSI","records":[],
+           "notice_count":None,"all_search_pages_verified":False,
+           "original_body_and_attachments_verified":False,
+           "legal_changes_confirmed":False,
+           "legacy_portal_snapshot_date":"2026-10-28"}
+        self.assertEqual(validate(x), "not_connected")
         x["notice_count"]=0
         with self.assertRaises(ValueError):
             validate(x)

@@ -1,13 +1,146 @@
 {
   "schema_version": 1,
-  "status": "not_connected",
+  "status": "verified",
   "source_id": "S24_JEONBUK_GOSI",
-  "message": "공개용 데이터 연결 전입니다. 이는 0건을 검증했다는 뜻이 아닙니다.",
-  "last_verified_kst": null,
-  "search_terms_verified": null,
-  "all_search_pages_verified": false,
-  "notice_count": null,
-  "records": [],
+  "last_verified_kst": "2026-10-29T13:57:34.654498+09:00",
+  "search_terms_verified": 9,
+  "all_search_pages_verified": true,
+  "notice_count": 19,
+  "records": [
+    {
+      "id": "S24_JEONBUK_GOSI:671842",
+      "title": "종합건설업 등록신고 수리 공고_(주)현대에너지",
+      "published_at": "2026-10-21",
+      "notice_no": "2026-1734",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=671842"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:670938",
+      "title": "분산에너지 특화지역(커뮤니티형) 계획(안) 공고",
+      "published_at": "2026-09-30",
+      "notice_no": "2026-1623",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=670938"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:670817",
+      "title": "새만금 에너지산업융복합단지 종합지원센터 입주기업(관) 모집 공고",
+      "published_at": "2026-09-28",
+      "notice_no": "2026-1591",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=670817"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:670429",
+      "title": "주택 등 건축물을 분양받을 권리의 산정 기준일 고시",
+      "published_at": "2026-09-18",
+      "notice_no": "2026-311",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=670429"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:669806",
+      "title": "전북 재생에너지 확대를 위한 전력계통 분석 및 대응전략 수립 용역 제안서 평가위원(후보자) 모집 공고",
+      "published_at": "2026-09-02",
+      "notice_no": "2026-1494",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=669806"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:669777",
+      "title": "「전북 재생에너지 확대를 위한 전력계통 분석 및 대응전략 수립 용역」 제안서 평가위원(후보자) 모집 공고",
+      "published_at": "2026-09-02",
+      "notice_no": "2026-1494",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=669777"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:669502",
+      "title": "주택 등 건축물을 분양받을 권리의 산정 기준일 고시(안) 행정예고",
+      "published_at": "2026-08-27",
+      "notice_no": "2026-1458",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=669502"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:669003",
+      "title": "2026년 전북특별자치도 건축물관리점검기관 등록명부 공고",
+      "published_at": "2026-08-18",
+      "notice_no": "2026-1401",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=669003"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:665033",
+      "title": "2026년 전북특별자치도 건축물 관리점검기관 추가모집 공고",
+      "published_at": "2026-07-01",
+      "notice_no": "2026-1208",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=665033"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:663859",
+      "title": "부안 신·재생에너지 일반산업단지 관리기본계획 변경 고시",
+      "published_at": "2026-06-19",
+      "notice_no": "2026-183",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=663859"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:658793",
+      "title": "허가권자가 지정하는 건축물 공사감리자 등록명부 공고(추가)",
+      "published_at": "2026-04-28",
+      "notice_no": "2026-921",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=658793"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:657955",
+      "title": "새만금 에너지산업융복합단지 종합지원센터 입주기업(관) 모집 공고",
+      "published_at": "2026-04-20",
+      "notice_no": "2026-866",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=657955"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:656677",
+      "title": "허가권자가 지정하는 건축물 공사감리자 등록명부 공고(수정)",
+      "published_at": "2026-04-08",
+      "notice_no": "2026-805",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=656677"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:656118",
+      "title": "허가권자가 지정하는 건축물 공사감리자 등록명부 공고",
+      "published_at": "2026-04-02",
+      "notice_no": "2026-771",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=656118"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:655167",
+      "title": "제3차 전북특별자치도 녹색건축물 조성계획 수립용역 제안서 평가위원(후보자) 공개모집 공고",
+      "published_at": "2026-03-26",
+      "notice_no": "2026-664",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=655167"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:654368",
+      "title": "2026년 재생에너지 주택지원사업 도보조금 지원 공고",
+      "published_at": "2026-03-18",
+      "notice_no": "2026-603",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=654368"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:652966",
+      "title": "건축물 해체공사감리자 등록명부 공고",
+      "published_at": "2026-03-05",
+      "notice_no": "2026-466",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=652966"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:652720",
+      "title": "허가권자가 지정하는 건축물 공사감리자 모집공고",
+      "published_at": "2026-02-27",
+      "notice_no": "2026-445",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=652720"
+    },
+    {
+      "id": "S24_JEONBUK_GOSI:647051",
+      "title": "건축물 해체공사감리자 추가모집 공고",
+      "published_at": "2026-01-19",
+      "notice_no": "2026-90",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=647051"
+    }
+  ],
   "original_body_and_attachments_verified": false,
   "legal_changes_confirmed": false,
   "legacy_portal_snapshot_date": "2026-10-28"
