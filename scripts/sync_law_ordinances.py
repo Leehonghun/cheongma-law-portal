@@ -52,7 +52,21 @@ def parse_page(body: bytes, *, expected_page: int, start: date, end: date):
         raise ValueError("Unexpectedly large API response")
     root = ET.fromstring(body)
     if root.find("totalCnt") is None or root.find("page") is None:
-        raise ValueError("Missing official API pagination markers")
+        # Diagnose the response *shape* without exposing authentication values,
+        # returned body contents, user data, or a request URL containing OC.
+        tag = re.sub(r"[^a-zA-Z0-9가-힣_-]", "", root.tag.rsplit("}", 1)[-1])[:48]
+        fields = [
+            re.sub(r"[^a-zA-Z0-9가-힣_-]", "", child.tag.rsplit("}", 1)[-1])[:48]
+            for child in list(root)[:12]
+        ]
+        observed = " ".join(root.itertext())[:1500].lower()
+        if "ip" in observed and any(w in observed for w in ("접근", "허용", "인증", "제한", "등록", "not")):
+            reason = "possible_ip_allowlist"
+        elif any(w in observed for w in ("인증", "승인", "사용자", "api key", "등록되지", "잘못된")):
+            reason = "possible_api_authorization"
+        else:
+            reason = "unexpected_schema_or_api_error"
+        raise ValueError(f"Official API response not a verified result: root={tag}; fields={fields}; class={reason}")
     total = int(root.findtext("totalCnt", "-1"))
     page = int(root.findtext("page", "-1"))
     if total < 0 or page != expected_page:
