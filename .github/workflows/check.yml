@@ -6,3 +6,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python -m unittest discover -s tests -v
+      - name: Verify dashboard inline JavaScript syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text(encoding='utf-8')
+          match=re.search(r'<script>\s*\(\(\)=>\{[\s\S]*?\}\)\(\);\s*</script>',s)
+          assert match,'Dashboard inline script not found'
+          Path('/tmp/portal-inline.js').write_text(match.group(0).replace('<script>','').replace('</script>',''),encoding='utf-8')
+          PY
+          node --check /tmp/portal-inline.js

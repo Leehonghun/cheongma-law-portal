@@ -1,0 +1,96 @@
+name: Daily public official notices update
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/sync_public_official_notices.py
+      - tests/test_daily_public_sync.py
+      - .github/workflows/daily-official-notices.yml
+  pull_request:
+    paths:
+      - scripts/sync_public_official_notices.py
+      - tests/test_daily_public_sync.py
+      - .github/workflows/daily-official-notices.yml
+  workflow_dispatch:
+  schedule:
+    # 09:10 UTC = 18:10 KST on weekdays.
+    - cron: '10 9 * * 1-5'
+concurrency:
+  group: public-official-notices
+  cancel-in-progress: false
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate public feed and fail-closed official pagination
+        run: python -m unittest discover -s tests -v
+
+  publish:
+    needs: validate
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install verified official HTML request and holiday support
+        run: python -m pip install playwright==1.56.0 'holidays>=0.70,<1'
+      - name: Check Korean scheduled workday
+        id: workday
+        env:
+          TRIGGER_EVENT: ${{ github.event_name }}
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          import holidays
+          local=datetime.now(ZoneInfo("Asia/Seoul")).date()
+          kr=holidays.country_holidays("KR", years=local.year)
+          skip=os.environ.get("TRIGGER_EVENT")=="schedule" and (local.weekday()>=5 or local in kr)
+          with open(os.environ["GITHUB_OUTPUT"],"a",encoding="utf-8") as h:
+              h.write("execute="+("false" if skip else "true")+"\n")
+          print({"date":local.isoformat(),"holiday":str(kr.get(local)) if local in kr else None,"execute":not skip})
+          PY
+      - name: Verify every official result page and safely refresh public JSON
+        if: steps.workday.outputs.execute == 'true'
+        run: python -m scripts.sync_public_official_notices
+      - name: Confirm final public data schema
+        if: steps.workday.outputs.execute == 'true'
+        run: python -m unittest discover -s tests -v
+      - name: Publish verified public-only JSON to this repository
+        if: steps.workday.outputs.execute == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- verified-notices.json
+          if git diff --cached --quiet; then
+            echo "No change in verified public data"
+          else
+            git commit -m "data: verify official Jeonbuk title-search pages"
+            git push origin HEAD:main
+          fi
+      - name: Upload collection audit, including failed attempts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-official-query-audit
+          path: data/audit/official-daily.json
+          if-no-files-found: ignore
+          retention-days: 14
