@@ -15,7 +15,7 @@ def sample_html(term, page=1, pages=1, total=1, data_id=655167, when="2026-03-26
         '<table class="bbs_table"><tbody><tr>'
         '<td>1</td><td>공고</td><td>2026-664</td>'
         '<td><a href="/board/view.jeonbuk?boardId=BBS_0000129'
-        '&amp;dataSid='+str(data_id)+'">전북 '+term+' 관련 공고</a></td>'
+        '&amp;dataSid='+str(data_id)+'">전북 녹색건축물 관련 공고</a></td>'
         '<td>주택건축과</td><td>'+when+'</td><td>250</td>'
         '</tr></tbody></table>'
     ) if total else '<table class="bbs_table"><tbody></tbody></table>'
