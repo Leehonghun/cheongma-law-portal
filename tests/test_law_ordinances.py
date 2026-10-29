@@ -25,7 +25,7 @@ def xml(term="녹색건축", page=1, total=1, seq="2172937", title="녹색건축
 class LawApiTests(unittest.TestCase):
     def test_query_scope(self):
         url = query_url("REDACTED", TERMS[0], 1, date(2026, 9, 1), date(2026, 10, 29))
-        self.assertIn("ancYd=20260901%7E20261029", url)
+        self.assertIn("ancYd=20260901~20261029", url)
         self.assertIn("target=ordin", url)
         self.assertIn("sort=ddes", url)
 
