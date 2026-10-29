@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "status": "not_connected",
+  "source_id": "LAW_ORDIN_2026",
+  "message": "법제처 국가법령정보 API 인증값 LAW_OC가 설정되지 않아 조회하지 않았습니다. 0건 확인을 뜻하지 않습니다.",
+  "terms_verified": [],
+  "records": [],
+  "original_body_and_attachments_verified": false,
+  "legal_changes_confirmed": false
+}
