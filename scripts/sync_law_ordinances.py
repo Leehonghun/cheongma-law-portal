@@ -116,10 +116,22 @@ def collect(*, oc: str, today: date | None = None, days: int = 120, opener=None,
         for page in range(1, MAX_PAGES + 1):
             url = query_url(oc, term, page, start, today)
             # Key must never be logged or included in published audit files.
-            with opener(urllib.request.Request(url, headers={"User-Agent": "LawRadarPilot/1.0"}), timeout=25) as response:
-                if response.status != 200:
-                    raise ValueError("Official API HTTP status not 200")
-                raw = response.read(4_000_001)
+            # Retry transient network failures without ever printing request URLs
+            # containing LAW_OC. An invalid API response remains a hard failure.
+            raw = None
+            for attempt in range(3):
+                try:
+                    with opener(urllib.request.Request(
+                        url, headers={"User-Agent": "LawRadarPilot/1.0"}), timeout=25) as response:
+                        if response.status != 200:
+                            raise ValueError("Official API returned non-200 HTTP")
+                        raw = response.read(4_000_001)
+                    break
+                except (urllib.error.URLError, TimeoutError, OSError) as exc:
+                    # Do not chain exceptions: urllib can reveal OC in the URL.
+                    if attempt == 2:
+                        raise ValueError("Official API unreachable after 3 attempts (DNS/network); no zero-result claim") from None
+                    time.sleep(2 * (attempt + 1))
             count, rows = parse_page(raw, expected_page=page, start=start, end=today)
             if total is None:
                 total = count
