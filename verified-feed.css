@@ -1,9 +1,0 @@
-/* Verified publication feed is visually distinct from the 2026-10-28 historic dashboard. */
-.cm-verified-panel{background:#f5f9ff;border:1px solid #dce7f2;border-radius:12px;margin:12px 0 18px;padding:14px 18px;color:#21374d}
-.cm-verified-panel>summary{font-size:14px;font-weight:740;cursor:pointer;list-style:revert}
-.cm-verified-panel .cm-verified-description,.cm-verified-panel .cm-verified-status{font-size:12px;line-height:1.6;color:#50687e;margin:10px 0}
-.cm-verified-panel .cm-verified-list{max-height:430px;overflow:auto}
-.cm-verified-panel .cm-verified-item{padding:10px 3px;border-bottom:1px solid #dce5ed}
-.cm-verified-panel .cm-verified-item:last-child{border-bottom:0}
-.cm-verified-panel .cm-verified-item>a{font-size:13px;color:#195a83;text-decoration:underline;overflow-wrap:anywhere}
-.cm-verified-panel .cm-verified-date{display:block;color:#617587;font-size:11px;margin-top:4px}
