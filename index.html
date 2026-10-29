@@ -59,7 +59,7 @@
         <div class="panel">
           <div class="filterbox">
             <div class="filtergrid"><div class="inputwrap"><span class="magnify">⌕</span><input type="search" id="search" autocomplete="off" placeholder="제목, 기관, 내용 검색 (예: ZEB, 녹색건축)" aria-label="게시물 검색" /></div>
-              <select id="date-filter" aria-label="검색 기간"><option value="all">전체 게시기간</option><option value="7">최근 7일 (10월 28일 기준)</option><option value="30">최근 30일 (10월 28일 기준)</option><option value="365">최근 1년 (10월 28일 기준)</option></select>
+              <select id="date-filter" aria-label="검색 기간"><option value="all">전체 게시기간</option><option value="7">최근 7일 (현재 기준)</option><option value="30">최근 30일 (현재 기준)</option><option value="365">최근 1년 (현재 기준)</option></select>
               <select id="detail-filter" aria-label="링크 및 검증 유형"><option value="all">모든 검증 상태</option><option value="direct">원문 직접 링크만</option><option value="attachments">첨부 링크 확인 자료만</option><option value="detail">상세글 표본 확인 자료만</option></select>
             </div>
             <div class="pills" id="group-filters"></div>
@@ -97,9 +97,9 @@
 'use strict';
 const DATA=JSON.parse(document.getElementById('radar-data').textContent);
 const $=id=>document.getElementById(id);
-const GROUPS=['전체','G-SEED','서울 EIMS','에절','ZEB','BF','중앙부처'];
+const GROUPS=['전체','G-SEED','서울 EIMS','에절','ZEB','BF','중앙부처','지자체'];
 const GROUP_CLASS={'G-SEED':'gseed','서울 EIMS':'eims','에절':'epi','ZEB':'zeb','BF':'bf','중앙부처':'central'};
-const BASE_DATE=new Date('2026-10-28T23:59:59+09:00');
+const BASE_DATE=new Date();
 let group='전체',page=0,activeTab='today';const size=20;
 const escapeHTML=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 function safeLink(url){try{const u=new URL(url);return u.protocol==='https:'?u.href:''}catch(e){return ''}}
@@ -115,9 +115,9 @@ function renderToday(){
  root.replaceChildren();
  const fresh=Array.isArray(DATA.newly_observed)?new Set(DATA.newly_observed):new Set();
  const changed=DATA.records.filter(r=>fresh.has(r.key));
- const feed=(changed.length?changed:DATA.records.filter(r=>r.date&&r.date<=DATA.last_source_check)).slice(0,14);
+ const feed=(changed.length?changed:DATA.records.filter(r=>r.date&&(r.verified_update||r.date<=DATA.last_source_check))).slice(0,14);
  const banner=document.createElement('div');banner.className='latest-summary';
- banner.textContent=DATA.last_source_check+' 수집 기준 · '+(changed.length?'직전 기록 대비 새로 발견한 게시물 후보':'최근 게시일 순 초기 수집자료')+' · '+feed.length+'건 표시 · 개정 확정 아님';
+ banner.textContent=DATA.live_record_count?('지자체 최신 검증 '+DATA.live_record_count+'건 ('+DATA.live_source_check+') · 그 외 기존 821건은 2026.10.28 시범 자료 · 개정 확정 아님'):(DATA.last_source_check+' 시범 수집 기준 · 최근 게시물 '+feed.length+'건 표시 · 개정 확정 아님');
  root.append(banner);
  for(const r of feed){
   const row=document.createElement('article');row.className='today-card';
@@ -144,7 +144,7 @@ $('pagination-label').textContent=`${found.length.toLocaleString('ko-KR')}건 �
 $('prev-page').disabled=page===0;$('next-page').disabled=page>=pages-1;$('feed-count-caption').textContent=`필터 결과 ${found.length.toLocaleString('ko-KR')}건`;
 $('post-rows').querySelectorAll('[data-post]').forEach(btn=>btn.onclick=()=>showDetail(btn.dataset.post));}
 function getReviews(){try{return JSON.parse(localStorage.getItem('radar-review-states-v1')||'{}')}catch(e){return {}}}
-function showDetail(key){const r=DATA.records.find(x=>x.key===key);if(!r)return;const safe=safeLink(r.url);let attached='첨부파일 링크는 아직 검증되지 않았습니다. 첨부 없음으로 확정할 수 없습니다.';if(r.attachments.length)attached=r.attachments.filter(a=>safeLink(a.url)).map(a=>`<div style="margin-bottom:10px"><a target="_blank" rel="noopener noreferrer" href="${escapeHTML(safeLink(a.url))}">${escapeHTML(a.filename)} ↗</a></div>`).join('');const reviews=getReviews();$('modal-content').innerHTML=`<div style="margin-top:19px"><span class="source ${GROUP_CLASS[r.group]||''}">${escapeHTML(r.group)}</span> <span class="drawer-meta" style="margin-left:8px">${escapeHTML(r.channel)}</span></div><h2>${escapeHTML(r.title)}</h2><div class="drawer-meta">게시일 ${escapeHTML(dateDisplay(r.date))} &nbsp;·&nbsp; ${escapeHTML(r.source)} &nbsp;·&nbsp; 식별자 ${escapeHTML(r.post_id.length>45?r.post_id.slice(-32):r.post_id)}</div><div class="detail-section" style="margin-top:20px"><h3>현재 수집 범위</h3><p>${escapeHTML(r.coverage)} · ${r.detail_verified?'이 게시물의 상세화면 표본 확인':'이 게시물의 상세 본문은 아직 직접 검증되지 않음'}</p><div class="notice-line" style="margin-top:13px">변경·개정 확정 판정 전입니다. 이 게시물은 2026-10-28 수집한 공식 목록 자료입니다.</div></div>${r.description?`<div class="detail-section"><h3>게시물 설명 (RSS 발췌)</h3><p>${escapeHTML(r.description)}</p></div>`:''}<div class="detail-section"><h3>공식 자료 바로가기</h3><p style="margin-bottom:12px">${r.link_type==='direct'?'공식 원문 URL이 확인되었습니다.':'이 게시물의 개별 URL은 검증되지 않았습니다. 공식 게시판에서 제목으로 검색해 주세요.'}</p>${safe?`<a class="button-blue" href="${escapeHTML(safe)}" target="_blank" rel="noopener noreferrer">${r.link_type==='direct'?'공식 원문 열기':'공식 게시판 열기'} ↗</a>`:'원문 링크 미확인'}</div><div class="detail-section"><h3>첨부파일</h3><p>${attached}</p></div><div class="detail-section"><h3>검토 상태</h3><select id="review-select" class="select-review"><option value="미검토">미검토</option><option value="검토중">검토중</option><option value="검토완료">검토완료</option><option value="해당없음">해당없음</option></select><div class="drawer-disclaimer">검토 상태는 현재 브라우저에만 저장됩니다. 다른 PC·회사 NAS·GitHub에는 연동되지 않습니다.</div></div>`;
+function showDetail(key){const r=DATA.records.find(x=>x.key===key);if(!r)return;const safe=safeLink(r.url);let attached='첨부파일 링크는 아직 검증되지 않았습니다. 첨부 없음으로 확정할 수 없습니다.';if(r.attachments.length)attached=r.attachments.filter(a=>safeLink(a.url)).map(a=>`<div style="margin-bottom:10px"><a target="_blank" rel="noopener noreferrer" href="${escapeHTML(safeLink(a.url))}">${escapeHTML(a.filename)} ↗</a></div>`).join('');const reviews=getReviews();$('modal-content').innerHTML=`<div style="margin-top:19px"><span class="source ${GROUP_CLASS[r.group]||''}">${escapeHTML(r.group)}</span> <span class="drawer-meta" style="margin-left:8px">${escapeHTML(r.channel)}</span></div><h2>${escapeHTML(r.title)}</h2><div class="drawer-meta">게시일 ${escapeHTML(dateDisplay(r.date))} &nbsp;·&nbsp; ${escapeHTML(r.source)} &nbsp;·&nbsp; 식별자 ${escapeHTML(r.post_id.length>45?r.post_id.slice(-32):r.post_id)}</div><div class="detail-section" style="margin-top:20px"><h3>현재 수집 범위</h3><p>${escapeHTML(r.coverage)} · ${r.detail_verified?'이 게시물의 상세화면 표본 확인':'이 게시물의 상세 본문은 아직 직접 검증되지 않음'}</p><div class="notice-line" style="margin-top:13px">변경·개정 확정 판정 전입니다. ${r.verified_update?'전북 공식 고시·공고 제목 검색 결과이며 상세 본문·첨부는 확인되지 않았습니다. 최종 검증 '+DATA.live_source_check+'입니다.':'이 게시물은 2026-10-28 수집한 시범 목록 자료입니다.'}</div></div>${r.description?`<div class="detail-section"><h3>게시물 설명 (RSS 발췌)</h3><p>${escapeHTML(r.description)}</p></div>`:''}<div class="detail-section"><h3>공식 자료 바로가기</h3><p style="margin-bottom:12px">${r.link_type==='direct'?'공식 원문 URL이 확인되었습니다.':'이 게시물의 개별 URL은 검증되지 않았습니다. 공식 게시판에서 제목으로 검색해 주세요.'}</p>${safe?`<a class="button-blue" href="${escapeHTML(safe)}" target="_blank" rel="noopener noreferrer">${r.link_type==='direct'?'공식 원문 열기':'공식 게시판 열기'} ↗</a>`:'원문 링크 미확인'}</div><div class="detail-section"><h3>첨부파일</h3><p>${attached}</p></div><div class="detail-section"><h3>검토 상태</h3><select id="review-select" class="select-review"><option value="미검토">미검토</option><option value="검토중">검토중</option><option value="검토완료">검토완료</option><option value="해당없음">해당없음</option></select><div class="drawer-disclaimer">검토 상태는 현재 브라우저에만 저장됩니다. 다른 PC·회사 NAS·GitHub에는 연동되지 않습니다.</div></div>`;
 $('review-select').value=reviews[r.key]||'미검토';$('review-select').onchange=e=>{const obj=getReviews();obj[r.key]=e.target.value;try{localStorage.setItem('radar-review-states-v1',JSON.stringify(obj))}catch(ex){alert('브라우저 설정상 검토 상태를 저장할 수 없습니다.')}};
 $('modal').classList.remove('hide');document.body.style.overflow='hidden'}
 function closeDetail(){$('modal').classList.add('hide');document.body.style.overflow=''}
@@ -164,7 +164,7 @@ function tab(next){
  $('stats').classList.toggle('hide',toolsPage);$('intro-notice').classList.toggle('hide',toolsPage);
  const names={
  today:['오늘의 법규 레이더','공식 게시물과 확인 범위·조치 사항을 확인합니다.','오늘의 대시보드'],
- feed:['수집 게시물','실제 수집된 게시물 821건에서 검색하고 상세·링크를 확인합니다.','수집 게시물'],
+ feed:['수집 게시물',DATA.live_record_count?('기존 821건 시범 자료 + 검증된 지자체 게시물 '+DATA.live_record_count+'건 · 기관별 검색 가능'):('2026.10.28 수집된 시범 게시물 821건에서 검색합니다.'),'수집 게시물'],
  coverage:['기관별 점검 현황','37개 감시 경로의 실제 확인 수준과 미완료 항목을 구분합니다.','기관별 점검 현황'],
  manual:['직접 확인 대상','자동 검색 결과가 확인되지 않은 지자체를 안내합니다.','수동 확인 대상'],
  history:['점검 이력','실제 실행 이력 연결을 준비하고 있습니다.','점검 이력'],
@@ -191,7 +191,64 @@ function openKpi(kind,button){
 }
 function closeKpi(){$('kpi-modal').classList.add('hide');document.body.style.overflow='';kpiKind=null;kpiOrigin?.focus();kpiOrigin=null}
 
+
+/* One verified official-public feed, integrated into the EXISTING collected-post list.
+   No Jeonbuk-only tab/panel. No unverified legal-change status is inferred. */
+function validatePublicNotice(x){
+ if(!x||typeof x!=='object'||!/^S24_JEONBUK_GOSI:[0-9]+$/.test(x.id||'')||
+    typeof x.title!=='string'||!x.title.trim()||x.title.length>500||
+    !/^20[0-9]{2}-[0-9]{2}-[0-9]{2}$/.test(x.published_at||''))return false;
+ try{
+  const u=new URL(x.url);
+  return u.protocol==='https:'&&u.hostname==='www.jeonbuk.go.kr'&&
+   u.pathname==='/board/view.jeonbuk'&&!u.username&&!u.password&&!u.hash&&
+   u.searchParams.get('boardId')==='BBS_0000129'&&
+   u.searchParams.get('dataSid')===x.id.split(':')[1];
+ }catch(e){return false}
+}
+async function loadOfficialPublicFeed(){
+ try{
+  const response=await fetch(new URL('./verified-notices.json',document.baseURI),{cache:'no-store'});
+  if(!response.ok)throw Error('Verified feed unavailable');
+  const feed=await response.json();
+  if(feed.schema_version!==1||feed.status!=='verified'||
+     feed.source_id!=='S24_JEONBUK_GOSI'||feed.search_terms_verified!==9||
+     feed.all_search_pages_verified!==true||feed.legal_changes_confirmed!==false||
+     feed.original_body_and_attachments_verified!==false||
+     !Array.isArray(feed.records)||feed.records.length!==feed.notice_count||
+     feed.records.length>1000||feed.records.some(r=>!validatePublicNotice(r))||
+     new Set(feed.records.map(r=>r.id)).size!==feed.records.length||
+     !Number.isFinite(Date.parse(feed.last_verified_kst)))throw Error('Unverified public feed');
+  const already=new Set(DATA.records.map(x=>x.key));
+  const additions=[];
+  for(const x of feed.records){
+   if(already.has(x.id))continue;
+   additions.push({
+    key:x.id,group:'지자체',source:'전북특별자치도',channel:'공식 고시·공고 · 9개 검색어 검증',
+    post_id:x.id,title:x.title,date:x.published_at,url:x.url,link_type:'direct',
+    attachments:[],description:(x.notice_no||'공고번호 미기재')+' · 원문 본문과 첨부 검증 전',
+    detail_verified:false,coverage:'공식 제목 검색 전체 페이지 확인',
+    id_verified:true,verified_update:true
+   });
+  }
+  DATA.records.push(...additions);
+  DATA.records.sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||String(a.key).localeCompare(String(b.key)));
+  DATA.live_record_count=additions.length;
+  DATA.live_source_check=feed.last_verified_kst;
+  $('nav-count').textContent=DATA.records.length;
+  $('intro-notice').textContent='공식 수집 검증 현황: 지자체 전북 고시·공고 '+feed.notice_count+
+    '건 ('+feed.last_verified_kst+' 검증) / 기타 기존 821건은 2026.10.28 시범 자료입니다. '+
+    '모든 기관이 갱신된 것은 아니며, 게시물 등록이 법규 개정 확정은 아닙니다.';
+  page=0;chips();renderRows();renderToday();
+  if(activeTab==='feed')tab('feed');
+ }catch(error){
+  // Preserve the current historical snapshot; do not imply "zero verified notices".
+  console.warn('Official public notice feed not verified. Historical portal is retained.');
+ }
+}
+
 $('nav-count').textContent=DATA.records.length;$('manual-count').textContent=DATA.manual.length;stats();chips();renderToday();renderRows();renderSources();renderManual();
+loadOfficialPublicFeed();
 $('search').addEventListener('input',()=>{page=0;renderRows()});$('date-filter').addEventListener('change',()=>{page=0;renderRows()});$('detail-filter').addEventListener('change',()=>{page=0;renderRows()});
 $('radar-toggle').onclick=()=>{if(!RADAR_TABS.has(activeTab))tab('today');else setRadarOpen($('radar-subnav').hidden)};
 $('stats').addEventListener('click',e=>{const button=e.target.closest('[data-kpi]');if(button)openKpi(button.dataset.kpi,button)});
