@@ -8,6 +8,7 @@ on:
       - tests/test_daily_public_sync.py
       - tests/test_law_ordinances.py
       - .github/workflows/daily-official-notices.yml
+      - index.html
   pull_request:
     paths:
       - scripts/sync_public_official_notices.py
@@ -15,6 +16,7 @@ on:
       - tests/test_daily_public_sync.py
       - tests/test_law_ordinances.py
       - .github/workflows/daily-official-notices.yml
+      - index.html
   workflow_dispatch:
   schedule:
     # 08:40 UTC = 17:40 KST on weekdays. Scheduled runs can be delayed.
@@ -35,6 +37,19 @@ jobs:
           python-version: '3.12'
       - name: Validate public feed and fail-closed official pagination
         run: python -m unittest discover -s tests -v
+      - name: Validate inline dashboard JavaScript before publishing
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path("index.html").read_text(encoding="utf-8")
+          match=re.search(r'<script>\s*\(\(\)=>\{[\s\S]*?\}\)\(\);\s*</script>',html)
+          assert match,"Dashboard script missing"
+          Path("/tmp/portal-verified.js").write_text(
+              match.group(0).replace("<script>","").replace("</script>",""), encoding="utf-8")
+          PY
+          node --check /tmp/portal-verified.js
 
   publish:
     needs: validate
