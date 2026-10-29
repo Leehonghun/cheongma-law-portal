@@ -108,7 +108,19 @@ jobs:
             echo "No change in verified public data"
           else
             git commit -m "data: refresh verified official and LAW API feeds"
-            git push origin HEAD:main
+            for n in 1 2 3; do
+              git fetch origin main
+              git rebase origin/main
+              if git push origin HEAD:main; then
+                echo "Verified data published"
+                break
+              fi
+              if [ "$n" -eq 3 ]; then
+                echo "::error::Verified data push failed after 3 attempts"
+                exit 1
+              fi
+              sleep 3
+            done
           fi
       - name: Upload collection audit, including failed attempts
         if: always()
