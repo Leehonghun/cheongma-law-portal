@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "status": "not_connected",
+  "source_id": "S24_JEONBUK_GOSI",
+  "message": "공개용 데이터 연결 전입니다. 이는 0건을 검증했다는 뜻이 아닙니다.",
+  "last_verified_kst": null,
+  "search_terms_verified": null,
+  "all_search_pages_verified": false,
+  "notice_count": null,
+  "records": [],
+  "original_body_and_attachments_verified": false,
+  "legal_changes_confirmed": false,
+  "legacy_portal_snapshot_date": "2026-10-28"
+}
