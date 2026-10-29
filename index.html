@@ -27,6 +27,7 @@
 .kpi-drawer{width:min(680px,98vw)}.kpi-note{font-size:12px;line-height:1.7;color:#6b7d8f;margin:0 0 18px}.kpi-filters{display:grid;grid-template-columns:1fr 150px;gap:8px}.kpi-filters input,.kpi-filters select{width:100%;padding:11px;border:1px solid #dce4ed;border-radius:8px;color:#334b63}.kpi-count{color:#697f93;font-size:12px;margin:15px 0 9px}.kpi-item{border:1px solid #e4eaf0;border-radius:10px;padding:14px;margin-bottom:9px}.kpi-item-head{display:flex;justify-content:space-between;gap:10px}.kpi-item strong{font-size:13px}.kpi-item p{font-size:12px;color:#78899c;margin:8px 0}.kpi-item a{font-size:12px;color:#1477e7;font-weight:750;text-decoration:none}.kpi-badge{font-size:10px;background:#f0f4f8;color:#5a6b7c;padding:3px 7px;border-radius:5px;white-space:nowrap;align-self:flex-start}.kpi-badge.checked{background:#e6f5ed;color:#187a58}
 @media(max-width:780px){.aside{width:100%;height:auto;overflow:visible}.nav{display:flex;flex-direction:column;overflow:visible}.radar-subnav{margin-left:18px}.brand{margin:0 0 12px}.company-mark{width:39px;height:36px}.top{min-height:52px;height:auto}.kpi-filters{grid-template-columns:1fr}}
 </style>
+<link rel="stylesheet" href="./verified-feed.css?v=1" />
 </head>
 <body>
 <div class="shell">
@@ -200,5 +201,6 @@ $('all-posts-button').onclick=()=>tab('feed');$('source-status-button').onclick=
 $('prev-page').onclick=()=>{page--;renderRows();};$('next-page').onclick=()=>{page++;renderRows()};document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>tab(b.dataset.tab));$('modal-close').onclick=closeDetail;$('modal').onclick=e=>{if(e.target===$('modal'))closeDetail()};document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(kpiKind)closeKpi();else closeDetail()}});
 })();
 </script>
+<script src="./verified-feed.js?v=1" defer></script>
 </body>
 </html>
