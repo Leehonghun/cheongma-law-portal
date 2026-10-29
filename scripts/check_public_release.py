@@ -70,14 +70,17 @@ def validate(obj):
 
 def validate_site(root):
     html=(root/"index.html").read_text(encoding="utf-8")
-    if (html.count('id="intro-notice"')!=1 or html.count("verified-feed.js?v=1")!=1
-            or html.count("verified-feed.css?v=1")!=1
+    # The public dashboard must be institution-neutral; a pilot region cannot
+    # create its own navigation/panel until a unified multi-source feed exists.
+    if (html.count('id="intro-notice"') != 1
             or "2026년 10월 28일 수집 기준" not in html
-            or "<!doctype html>" not in html.lower()):
-        raise ValueError("Original portal content or safe feed reference lost")
-    js=(root/"verified-feed.js").read_text(encoding="utf-8")
-    if "textContent" not in js or "innerHTML" in js or "verified-notices.json" not in js:
-        raise ValueError("Missing trusted DOM-only feed rendering")
+            or "<!doctype html>" not in html.lower()
+            or "verified-feed.js" in html
+            or "verified-feed.css" in html
+            or "cheongma-verified-feed" in html):
+        raise ValueError("Legacy dashboard changed or region-only panel reintroduced")
+    # Preserve the verified pilot JSON as data, but do not display it separately.
+    # This does not mean all local government sources are live.
     return validate(json.loads((root/"verified-notices.json").read_text(encoding="utf-8")))
 
 if __name__=="__main__":
