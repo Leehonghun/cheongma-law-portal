@@ -2,11 +2,18 @@
   "schema_version": 1,
   "status": "verified",
   "source_id": "S24_JEONBUK_GOSI",
-  "last_verified_kst": "2026-10-29T18:25:46.612534+09:00",
+  "last_verified_kst": "2026-10-30T18:25:41.892261+09:00",
   "search_terms_verified": 9,
   "all_search_pages_verified": true,
-  "notice_count": 19,
+  "notice_count": 20,
   "records": [
+    {
+      "id": "S24_JEONBUK_GOSI:672166",
+      "title": "종합공사를 시공하는 건설업종의 폐업 공고_(주)현대에너지",
+      "published_at": "2026-10-29",
+      "notice_no": "2026-1764",
+      "url": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000129&menuCd=DOM_000000102002005000&dataSid=672166"
+    },
     {
       "id": "S24_JEONBUK_GOSI:671842",
       "title": "종합건설업 등록신고 수리 공고_(주)현대에너지",
