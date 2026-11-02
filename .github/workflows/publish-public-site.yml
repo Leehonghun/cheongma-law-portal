@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'tests/public_smoke.py'
       - '.github/workflows/publish-public-site.yml'
   workflow_dispatch:
 
