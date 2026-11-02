@@ -1,26 +1,7 @@
 name: Daily public official notices update
 on:
-  push:
-    branches: [main]
-    paths:
-      - scripts/sync_public_official_notices.py
-      - scripts/sync_law_ordinances.py
-      - tests/test_daily_public_sync.py
-      - tests/test_law_ordinances.py
-      - .github/workflows/daily-official-notices.yml
-      - index.html
-  pull_request:
-    paths:
-      - scripts/sync_public_official_notices.py
-      - scripts/sync_law_ordinances.py
-      - tests/test_daily_public_sync.py
-      - tests/test_law_ordinances.py
-      - .github/workflows/daily-official-notices.yml
-      - index.html
   workflow_dispatch:
-  schedule:
-    # 08:40 UTC = 17:40 KST on weekdays. Scheduled runs can be delayed.
-    - cron: '40 8 * * 1-5'
+
 concurrency:
   group: public-official-notices
   cancel-in-progress: false
