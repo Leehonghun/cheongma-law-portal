@@ -67,3 +67,29 @@ jobs:
       - name: Deploy site
         id: deployment
         uses: actions/deploy-pages@v4
+
+  test_public_site:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Playwright
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Verify publicly served browser UI
+        env:
+          PUBLIC_SITE_URL: https://leehonghun.github.io/cheongma-law-portal/
+        run: python tests/public_smoke.py
+      - name: Preserve public-site screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-law-portal-screenshot
+          path: live-portal.png
+          if-no-files-found: warn
+          retention-days: 14
