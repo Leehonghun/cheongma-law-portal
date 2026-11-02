@@ -1,0 +1,69 @@
+name: Publish public Cheongma law portal
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - '.github/workflows/publish-public-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: cheongma-public-pages
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate public snapshot and JavaScript
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json, re
+          s=Path('index.html').read_text(encoding='utf-8')
+          m=re.search(r'<script id="radar-data" type="application/json">([\s\S]*?)</script>',s)
+          assert m, "Site payload missing"
+          d=json.loads(m.group(1))
+          assert len(d["records"])>=500, "Coverage regression"
+          assert d["summary"]["city_query_last_success"]==17, "City verification was lost"
+          assert 'id="home-period"' in s and 'id="home-source"' in s
+          assert 'action="/logout"' not in s and '__Host-cm_session' not in s
+          for item in ('AUTH_USERS_JSON','SESSION_SIGNING_KEY','private-users','private-secrets'):
+              assert item not in s, "Protected deployment credential string leaked"
+          js=re.search(r'<script>\s*\(\(\)=>\{[\s\S]*?\}\)\(\);\s*</script>',s)
+          assert js, "Dashboard JS missing"
+          Path('/tmp/cheongma-public.js').write_text(js.group(0).replace('<script>','').replace('</script>',''),encoding='utf-8')
+          print("Public snapshot:",len(d["records"]),"records, 17 province search checks")
+          PY
+          node --check /tmp/cheongma-public.js
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare static site only
+        run: |
+          mkdir -p public
+          cp index.html public/index.html
+          touch public/.nojekyll
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload verified static site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: public
+      - name: Deploy site
+        id: deployment
+        uses: actions/deploy-pages@v4
