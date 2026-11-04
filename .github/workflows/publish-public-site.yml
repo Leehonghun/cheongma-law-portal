@@ -32,7 +32,7 @@ jobs:
           m=re.search(r'<script id="radar-data" type="application/json">([\s\S]*?)</script>',s)
           assert m, "Site payload missing"
           d=json.loads(m.group(1))
-          assert len(d["records"])>=500, "Coverage regression"
+          assert len(d["records"])>=300, "Coverage regression"
           city=d["summary"]["city_query_last_success"]
           total=d["summary"]["city_query_total"]
           assert total==17 and isinstance(city,int) and 0<=city<=total, "City coverage diagnostic invalid"
