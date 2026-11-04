@@ -33,6 +33,9 @@ jobs:
           assert m, "Site payload missing"
           d=json.loads(m.group(1))
           assert len(d["records"])>=300, "Coverage regression"
+          assert d["summary"]["target_sites"]==36, "Displayed target scope mismatch"
+          assert all(not r["key"].startswith("eims_") for r in d["records"]), "Excluded EIMS post leaked"
+          assert all(s["id"]!="S07" for s in d["sources"]), "Excluded EIMS target leaked"
           city=d["summary"]["city_query_last_success"]
           total=d["summary"]["city_query_total"]
           assert total==17 and isinstance(city,int) and 0<=city<=total, "City coverage diagnostic invalid"
