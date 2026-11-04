@@ -269,7 +269,7 @@ function renderHistory(){
 }
 $('law-api-status').textContent=DATA.ordinance_status||'전국 자치법규 API 상태 미확인 · 전체 검색의 대체 수단 아님';
 document.querySelector('.top-meta').textContent='최종 공식 수집 '+DATA.generated_at;
-document.querySelector('.top-pulse').textContent='● '+DATA.source_success+'/'+DATA.source_active+' 수집경로 확인 · 37개 전체 검증 아님';
+document.querySelector('.top-pulse').textContent='● '+DATA.source_success+'/'+DATA.source_active+' 수집경로 확인 · '+DATA.summary.target_sites+'개 전체 검증 아님';
 document.querySelector('.sidebar-bottom').innerHTML='<span class="small-dot"></span>운영 중 / 확인 범위 공개<br><span style="font-size:10px;opacity:.8">최종 점검 '+escapeHTML(DATA.last_source_check)+'</span>';
 renderCurated();renderHistory();
 
