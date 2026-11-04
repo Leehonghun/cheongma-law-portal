@@ -13,7 +13,7 @@ with sync_playwright() as p:
     assert "청마" in page.title(), page.title()
     assert page.locator("#radar-toggle").count()==1
     assert page.locator("#nav-count").inner_text().strip().isdigit()
-    assert int(page.locator("#nav-count").inner_text())>=500
+    assert int(page.locator("#nav-count").inner_text())>=300
     assert page.locator("#home-period").input_value()=="365"
     assert page.locator("#home-source").input_value()=="all"
     assert page.locator("#home-kind").input_value()=="all"
@@ -39,13 +39,17 @@ with sync_playwright() as p:
     assert page.locator("#latest-post-list .today-card").count()>initial
     page.locator("#home-source").select_option("지자체")
     page.locator("#home-kind").select_option("기준·고시")
-    assert "심의기준 개정" in page.locator("#latest-post-list").inner_text()
+    assert "환경영향평가" not in page.locator("#latest-post-list").inner_text()
     page.locator("[data-tab='feed']").click()
     assert page.locator("#view-feed").is_visible()
     page.locator("#search").fill("녹색건축")
     assert page.locator("#post-rows tr").count()>0
     page.locator("[data-tab='coverage']").click()
-    assert page.locator("#coverage-cards article").count()==37
+    assert page.locator("#coverage-cards article").count()==36
+    import json
+    payload=json.loads(page.locator("#radar-data").text_content())
+    assert all(not r["key"].startswith("eims_") for r in payload["records"])
+    assert all(s["id"]!="S07" for s in payload["sources"])
     assert not errors, "Browser JavaScript exceptions: "+"; ".join(errors)
     browser.close()
 print("PASS: Public HTTP 200; navigation, source/period controls, data and original links.")
