@@ -26,9 +26,11 @@ with sync_playwright() as p:
     assert page.locator("#latest-post-list .today-card").count()>0
     page.locator("#home-source").select_option("지자체")
     city_text=page.locator("#latest-post-list").inner_text()
-    assert "세종시 녹색건축물 설계기준 안내 책자" in city_text, city_text[:300]
+    guide = "#latest-post-list a[href*='B000000163790Cv0rU5v']"
+    assert page.locator(guide).count()==1, city_text[:300]
+    assert "녹색건축물 설계기준" in page.locator(guide).inner_text()
     page.locator("#home-kind").select_option("해설·매뉴얼")
-    assert "세종시 녹색건축물 설계기준 안내 책자" in page.locator("#latest-post-list").inner_text()
+    assert page.locator(guide).count()==1, "Official Sejong guide missing from manual filter"
     page.locator("#home-kind").select_option("all")
     page.locator("#home-source").select_option("all")
     page.locator("#home-period").select_option("all")
