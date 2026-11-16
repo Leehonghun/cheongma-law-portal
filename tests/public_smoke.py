@@ -13,7 +13,7 @@ with sync_playwright() as p:
     assert "청마" in page.title(), page.title()
     assert page.locator("#radar-toggle").count()==1
     assert page.locator("#nav-count").inner_text().strip().isdigit()
-    assert int(page.locator("#nav-count").inner_text())>=300
+    assert int(page.locator("#nav-count").inner_text())>=50
     assert page.locator("#home-period").input_value()=="365"
     assert page.locator("#home-source").input_value()=="all"
     assert page.locator("#home-kind").input_value()=="all"
@@ -55,6 +55,11 @@ with sync_playwright() as p:
     assert set(payload["new_publication_keys"]).issubset({r["key"] for r in payload["records"]})
     assert all(not r["key"].startswith("eims_") for r in payload["records"])
     assert all(s["id"]!="S07" for s in payload["sources"])
+    assert len(payload.get("work_coverage",[]))==15, "Department work coverage missing"
+    assert all(r.get("work_categories") for r in payload["records"]), "Unrelated public record"
+    assert page.locator("#work-overview [data-work]").count()==15
+    page.locator("#work-overview [data-work='장수명']").click()
+    assert page.locator("#view-feed").is_visible()
     assert not errors, "Browser JavaScript exceptions: "+"; ".join(errors)
     browser.close()
 print("PASS: Public HTTP 200; navigation, source/period controls, data and original links.")
