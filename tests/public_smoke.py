@@ -57,8 +57,9 @@ with sync_playwright() as p:
     assert all(s["id"]!="S07" for s in payload["sources"])
     assert len(payload.get("work_coverage",[]))==15, "Department work coverage missing"
     assert all(r.get("work_categories") for r in payload["records"]), "Unrelated public record"
-    assert page.locator("#work-overview [data-work]").count()==15
-    page.locator("#work-overview [data-work='장수명']").click()
+    assert page.locator("#work-overview").count()==0
+    page.locator("[data-tab='feed']").click()
+    page.locator("[data-group='장수명']").click()
     assert page.locator("#view-feed").is_visible()
     assert not errors, "Browser JavaScript exceptions: "+"; ".join(errors)
     browser.close()
