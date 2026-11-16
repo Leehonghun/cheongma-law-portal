@@ -32,7 +32,9 @@ jobs:
           m=re.search(r'<script id="radar-data" type="application/json">([\s\S]*?)</script>',s)
           assert m, "Site payload missing"
           d=json.loads(m.group(1))
-          assert len(d["records"])>=300, "Coverage regression"
+          assert len(d["records"])>=50, "Relevant reference coverage regression"
+          assert len(d.get("work_coverage",[]))==15, "Department work coverage missing"
+          assert all(r.get("work_categories") for r in d["records"]), "Unrelated public record"
           assert d["summary"]["target_sites"]==36, "Displayed target scope mismatch"
           assert all(not r["key"].startswith("eims_") for r in d["records"]), "Excluded EIMS post leaked"
           assert all(s["id"]!="S07" for s in d["sources"]), "Excluded EIMS target leaked"
