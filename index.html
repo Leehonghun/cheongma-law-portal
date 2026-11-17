@@ -33,6 +33,28 @@
 .home-filter-hint{font-size:11px;color:#7990a4;margin-left:auto;padding-bottom:8px}
 @media(max-width:780px){.home-filters .home-field{flex:1;min-width:130px}.home-filters select{width:100%;min-width:0}.home-filter-hint{width:100%;padding-bottom:0}.today-card{grid-template-columns:88px minmax(0,1fr);padding:13px}}
 
+
+/* 부서 종합 대시보드 */
+.dashboard{margin-top:22px}.dashboard-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:20px}
+.dash-metric{position:relative;background:#fff;border:1px solid var(--line);border-radius:12px;padding:19px 22px 17px 27px;box-shadow:var(--shadow)}
+.dash-metric:before{content:"";position:absolute;left:12px;top:22px;bottom:22px;width:3px;border-radius:3px;background:var(--accent,#2469d8)}
+.dash-metric span{font-size:12px;font-weight:750;color:#52667b}.dash-metric strong{display:block;font-size:29px;letter-spacing:-1px;color:#153867;margin:5px 0}.dash-metric small{font-size:11px;color:#8290a0}
+.dashboard-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(310px,1fr);gap:18px;align-items:start}
+.dash-panel{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);padding:19px}
+.dash-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:15px}
+.dash-heading h2{font-size:17px;margin:0;border-left:3px solid #2469d8;padding-left:10px;color:#172f4f}.dash-heading>span{color:#7e8fa1;font-size:11px}
+.dash-note{background:#f4f7fb;border:1px solid #e7edf3;border-radius:8px;padding:11px 13px;color:#61768b;font-size:12px;margin-bottom:14px}
+.dash-highlight{display:block;width:100%;border:0;border-top:1px solid var(--line);background:white;text-align:left;padding:15px 0;color:inherit}
+.dash-highlight:hover{background:#f8fbff}.dash-highlight strong{display:block;font-size:14px;line-height:1.6;margin:7px 0 4px}
+.dash-highlight p{font-size:12px;color:#61758c;margin:0 0 5px;line-height:1.7}.dash-highlight small{color:#8a98a8;font-size:11px}
+.dash-table{width:100%;border-collapse:collapse;font-size:12px}.dash-table th{font-size:10px;color:#7c8fa4;text-align:left;background:#f5f8fc;padding:8px}.dash-table td{padding:9px 8px;border-bottom:1px solid #edf1f5}.dash-table button{background:none;border:0;padding:0;color:#245d9b;font-weight:700}
+.dash-table td:last-child{color:#8191a2;font-size:11px;white-space:nowrap}.dash-text{color:#2469d8;background:none;border:0;font-size:11px;font-weight:750;padding:7px 0}
+.dash-subheading{font-size:11px;color:#7d8ca0;margin:17px 0 5px}.dash-schedule{display:flex;gap:13px;border-top:1px solid var(--line);padding:15px 0}.dash-schedule time{color:#2469d8;font-size:13px;font-weight:800;white-space:nowrap}.dash-schedule button{border:0;background:none;color:#253c54;text-align:left;font-weight:700;font-size:12px;padding:0}.dash-schedule small{display:block;color:#8193a6;font-size:11px;margin-top:4px}
+.dash-recent .home-filters{padding:10px;background:#f8fafc;gap:8px}.dash-recent .home-field{min-width:100px;flex:1}.dash-recent select{min-width:0;width:100%;font-size:11px;height:34px}
+.dash-recent .today-card{padding:12px 0;grid-template-columns:78px minmax(0,1fr);gap:10px}.dash-recent .today-content a{font-size:12px}.dash-recent .today-meta{font-size:10px}.dash-recent .latest-summary{font-size:10px;padding:8px 0;background:none}
+@media(max-width:1100px){.dashboard-grid{grid-template-columns:minmax(0,1.4fr) minmax(260px,1fr)}}
+@media(max-width:850px){.dashboard-grid{grid-template-columns:1fr}.dashboard-stats{grid-template-columns:repeat(2,1fr)}.dash-metric{padding:14px 22px}.dash-metric strong{font-size:23px}}
+
 </style>
 </head>
 <body>
@@ -57,12 +79,16 @@
   <div class="main">
     <header class="top"><div class="crumb">내부 운영 대시보드 <span style="margin:0 7px">/</span><strong id="crumb-label">최근 확인 자료</strong></div><div class="top-right"><div class="top-meta">최신 자동 수집 데이터 연결</div><button class="top-pulse" type="button" id="status-open" aria-haspopup="dialog">● 수집 상태 보기</button></div></header>
     <main class="content">
-      <div class="page-hdr"><div><div class="overline">REGULATION MONITORING</div><h1 id="page-title">최근 자료</h1><p id="page-subtitle">최근 등록된 업무 관련 자료를 확인하고 공식 출처를 열 수 있습니다.</p></div></div>
+      <div class="page-hdr"><div><div class="overline">REGULATION MONITORING</div><h1 id="page-title">오늘의 대시보드</h1><p id="page-subtitle">건축환경부 법규·인증 업무 현황</p></div></div>
       
       
       <div class="stats" id="stats"></div>
-      <section class="section" id="view-today"><div class="section-head"><h2 id="home-section-title">최근 1년 실무 관련 자료</h2><small>최근 1년간 업무 관련 공식 자료</small></div>
-      <div class="home-filters" aria-label="실무 관련 자료 표시 조건">
+      <section class="section dashboard" id="view-today">
+<div id="dashboard-stats" class="dashboard-stats"></div>
+<div class="dashboard-grid">
+<div class="dash-panel"><div class="dash-heading"><h2>오늘의 특이사항</h2><span id="dashboard-day"></span></div><div id="today-highlights"></div></div>
+<div class="dash-panel"><div class="dash-heading"><h2>업무별 업데이트</h2><span>최근 30일</span></div><div id="work-updates"></div></div>
+<div class="dash-panel dash-recent"><div class="dash-heading"><h2 id="home-section-title">최근 주요 자료</h2><button class="dash-text" id="all-posts-button">전체 자료 보기 ↗</button></div><div class="home-filters" aria-label="실무 관련 자료 표시 조건">
         <div class="home-field"><label for="home-period">게시 기간</label><select id="home-period" aria-label="첫 화면 게시 기간">
           <option value="30">최근 1개월</option><option value="90">최근 3개월</option><option value="180">최근 6개월</option><option value="365" selected>최근 1년</option><option value="all">전체 기간</option>
         </select></div>
@@ -72,7 +98,9 @@
         <div class="home-field"><label for="home-kind">자료 유형</label><select id="home-kind" aria-label="첫 화면 실무자료 유형"><option value="all">모든 실무자료</option><option value="기준·고시">기준·고시</option><option value="예고·공고">예고·공고</option><option value="해설·매뉴얼">안내서·매뉴얼</option><option value="기타 실무">기타 실무자료</option></select></div>
         
       </div>
-      <div class="panel" id="latest-post-list" aria-label="최근 게시물 목록"></div><div class="section-head" style="margin-top:20px"><h2>주요 법규·인증 기준</h2></div><div id="curated-review-list" class="panel" aria-label="실무 검토 자료"></div><div class="home-actions"><button class="soft-button" id="all-posts-button" type="button">전체 게시물 보기</button><button class="soft-button" id="source-status-button" type="button">기관별 점검 현황</button></div></section>
+      <div id="latest-post-list" aria-label="최근 게시물 목록"></div></div>
+<div class="dash-panel"><div class="dash-heading"><h2>주요 일정</h2><span>향후 30일</span></div><div id="upcoming-dates"></div><button class="dash-text" id="source-status-button">기관별 수집 현황 ↗</button></div>
+</div></section>
       <section class="section hide" id="view-feed">
         <div class="section-head"><h2>수집 게시물 목록</h2><small id="feed-count-caption">실제 공식 사이트 확인 자료</small></div>
         <div class="panel">
@@ -136,7 +164,7 @@ function renderToday(){
  const origin=$('home-source').value;
  const kind=$('home-kind').value;
  const dayLabels={'30':'최근 1개월','90':'최근 3개월','180':'최근 6개월','365':'최근 1년','all':'전체 기간'};
- $('home-section-title').textContent=dayLabels[day]+' 실무 관련 자료';
+ $('home-section-title').textContent='최근 주요 자료';
  const eligible=new Set(Array.isArray(DATA.home_pool_keys)?DATA.home_pool_keys:[]);
  const asOf=Date.parse((DATA.home_policy?.as_of||DATA.last_source_check)+'T00:00:00Z');
  const filtered=DATA.records.filter(r=>{
@@ -230,9 +258,9 @@ function tab(next){
  $('radar-toggle').classList.toggle('active',RADAR_TABS.has(next));
  if(RADAR_TABS.has(next))setRadarOpen(true);
  const toolsPage=!RADAR_TABS.has(next);
- $('stats').classList.toggle('hide',toolsPage);
+ $('stats').classList.toggle('hide',toolsPage||next==='today');
  const names={
- today:['오늘의 법규 레이더','업무 관련 법규와 공식 자료를 확인합니다.','오늘의 대시보드'],
+ today:['오늘의 대시보드','건축환경부 법규·인증 업무 현황','오늘의 대시보드'],
  feed:['수집 게시물',DATA.records.length+'건의 업무 관련 자료입니다.','수집 게시물'],
  coverage:['기관별 수집 현황','기관별 최근 수집 결과와 게시물 수를 확인합니다.','기관별 수집 현황'],
  manual:['검색 결과 확인 필요','최근 검색 결과를 확인하지 못한 지역입니다.','검색 결과 확인 필요'],
@@ -263,6 +291,50 @@ function closeKpi(){$('kpi-modal').classList.add('hide');document.body.style.ove
 
 
 
+
+
+function renderDashboard(){
+ const nowDay=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul'}).format(new Date());
+ const stamp=d=>Date.parse(d+'T00:00:00+09:00');
+ const today=stamp(nowDay), age=d=>(today-stamp(d))/86400000;
+ const fresh=new Set(DATA.new_publication_keys||[]);
+ const newToday=DATA.records.filter(r=>fresh.has(r.key)&&r.date===nowDay);
+ const revisedToday=DATA.records.filter(r=>r.verified_update===true&&r.date===nowDay);
+ const relevant=new Set(DATA.home_pool_keys||[]);
+ const recent=DATA.records.filter(r=>relevant.has(r.key)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+ const month=recent.filter(r=>age(r.date)>=0&&age(r.date)<=30);
+ const schedules=[];
+ for(const r of DATA.records){
+   const effect=r.official_summary?.effective_at;
+   if(effect&&stamp(effect)>today&&stamp(effect)<=today+30*86400000)
+     schedules.push({r,date:effect,label:'시행 예정'});
+   const period=(r.description||'').match(/의견 제출 기간:\s*(\d{4}-\d{2}-\d{2})\s*~\s*(\d{4}-\d{2}-\d{2})/);
+   if(period&&stamp(period[2])>=today&&stamp(period[2])<=today+30*86400000)
+     schedules.push({r,date:period[2],label:'의견수렴 마감'});
+ }
+ const uniqueDates=[...new Map(schedules.map(s=>[s.r.key+':'+s.label,s])).values()].sort((a,b)=>a.date.localeCompare(b.date));
+ const todayCollected=(DATA.generated_at||'').slice(0,10)===nowDay;
+ const groups=GROUPS.filter(g=>!['전체','중앙부처'].includes(g));
+ const updated=groups.filter(g=>[...newToday,...revisedToday].some(r=>inGroup(r,g))).length;
+ $('dashboard-day').textContent=dateDisplay(nowDay);
+ const metrics=[['신규 자료',newToday.length+'건','오늘 게시된 자료','#2469d8'],['변경 자료',revisedToday.length+'건','내용 변경 확인 자료','#169c94'],['주요 일정',uniqueDates.length+'건','향후 30일','#d19a32'],['업데이트 업무',updated+'개','오늘 자료가 게시된 업무','#2469d8']];
+ $('dashboard-stats').innerHTML=metrics.map(m=>'<div class="dash-metric" style="--accent:'+m[3]+'"><span>'+m[0]+'</span><strong>'+m[1]+'</strong><small>'+m[2]+'</small></div>').join('');
+ const todayRows=[...new Map([...newToday,...revisedToday].map(r=>[r.key,r])).values()];
+ const note=!todayCollected?'오늘 수집 전 · 최근 수집 '+dateDisplay(DATA.last_source_check):todayRows.length?'오늘 게시된 자료 '+todayRows.length+'건':'오늘 게시된 새 자료 없음';
+ const selected=todayRows.length?todayRows.slice(0,3):recent.filter(r=>r.official_summary).slice(0,3);
+ $('today-highlights').innerHTML='<div class="dash-note">'+escapeHTML(note)+'</div>'+(!todayRows.length?'<div class="dash-subheading">최근 주요 개정</div>':'')+selected.map(r=>{
+ const text=r.official_summary?.changes?.[0]||r.description||'';
+ return '<button class="dash-highlight" data-post="'+escapeHTML(r.key)+'"><span class="source '+(GROUP_CLASS[r.group]||'')+'">'+escapeHTML(r.group)+'</span><strong>'+escapeHTML(r.title)+' ↗</strong><p>'+escapeHTML(text)+'</p><small>'+escapeHTML(r.source.split(' · ')[0])+' · '+escapeHTML(dateDisplay(r.date))+'</small></button>';
+ }).join('');
+ $('work-updates').innerHTML='<table class="dash-table"><thead><tr><th>업무</th><th>게시 자료</th><th>최근 게시</th></tr></thead><tbody>'+groups.map(g=>{
+ const rows=month.filter(r=>inGroup(r,g)),last=recent.find(r=>inGroup(r,g));
+ return '<tr><td><button data-work="'+escapeHTML(g)+'">'+escapeHTML(g)+'</button></td><td>'+rows.length+'건</td><td>'+escapeHTML(last?.date?.slice(5).replace('-','.')||'—')+'</td></tr>';
+ }).join('')+'</tbody></table>';
+ $('upcoming-dates').innerHTML=uniqueDates.length?uniqueDates.slice(0,6).map(s=>'<div class="dash-schedule"><time>'+escapeHTML(s.date.slice(5).replace('-','.'))+'</time><div><button data-post="'+escapeHTML(s.r.key)+'">'+escapeHTML(s.label)+'</button><small>'+escapeHTML(s.r.title)+'</small></div></div>').join(''):'<div class="dash-note">향후 30일 내 등록된 일정 없음</div>';
+ document.querySelectorAll('#today-highlights [data-post],#upcoming-dates [data-post]').forEach(b=>b.onclick=()=>showDetail(b.dataset.post));
+ $('work-updates').querySelectorAll('[data-work]').forEach(b=>b.onclick=()=>{group=b.dataset.work;page=0;chips();renderRows();tab('feed')});
+ $('stats').classList.add('hide');
+}
 
 function renderCurated(){
  const root=$('curated-review-list'); if(!root)return;
@@ -295,7 +367,7 @@ function renderHistory(){
 document.querySelector('.top-meta').textContent='최종 공식 수집 '+DATA.generated_at;
 document.querySelector('.top-pulse').textContent='● 수집 상태 · '+DATA.source_success+'/'+DATA.source_active+'개 경로 성공';
 document.querySelector('.sidebar-bottom').innerHTML='<span class="small-dot"></span>운영 중<br><span style="font-size:10px;opacity:.8">최종 점검 '+escapeHTML(DATA.last_source_check)+'</span>';
-renderCurated();renderHistory();
+renderCurated();renderHistory();renderDashboard();
 
 $('nav-count').textContent=DATA.records.length;$('manual-count').textContent=DATA.manual.length;stats();chips();renderToday();renderRows();renderSources();renderManual();
 $('home-period').addEventListener('change',()=>{homeExpanded=false;renderToday()});
