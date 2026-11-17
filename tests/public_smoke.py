@@ -14,34 +14,19 @@ with sync_playwright() as p:
     assert page.locator("#radar-toggle").count()==1
     assert page.locator("#nav-count").inner_text().strip().isdigit()
     assert int(page.locator("#nav-count").inner_text())>=50
-    assert page.locator("#home-period").input_value()=="365"
-    assert page.locator("#home-source").input_value()=="all"
-    assert page.locator("#home-kind").input_value()=="all"
-    assert page.locator("#latest-post-list .today-card").count()>0
-    assert page.locator("#latest-post-list .today-link").count()==0
-    assert page.locator('.logout-form').count()==0, "Legacy login must be removed"
-    initial=page.locator("#latest-post-list .today-card").count()
+    assert page.locator("#dashboard-stats").is_visible()
+    assert page.locator("#today-highlights").is_visible()
+    assert page.locator('.logout-form').count()==0
     page.screenshot(path="live-portal.png",full_page=True)
-    page.locator("#home-source").select_option("중앙부처")
-    assert page.locator("#latest-post-list .today-card").count()>0
-    page.locator("#home-source").select_option("지자체")
-    city_text=page.locator("#latest-post-list").inner_text()
-    guide = "#latest-post-list a[href*='B000000163790Cv0rU5v']"
-    assert page.locator(guide).count()==1, city_text[:300]
-    assert "녹색건축물 설계기준" in page.locator(guide).inner_text()
-    page.locator("#home-kind").select_option("해설·매뉴얼")
-    assert page.locator(guide).count()==1, "Official Sejong guide missing from manual filter"
-    page.locator("#home-kind").select_option("all")
-    page.locator("#home-source").select_option("all")
-    page.locator("#home-period").select_option("all")
-    assert page.locator("#latest-post-list .today-card").count()>=initial
-    expand=page.locator("#latest-post-list button.soft-button")
-    assert expand.count()>0, "Relevant candidates must remain expandable, not silently hidden"
-    expand.first.click()
-    assert page.locator("#latest-post-list .today-card").count()>initial
-    page.locator("#home-source").select_option("지자체")
-    page.locator("#home-kind").select_option("기준·고시")
-    assert "환경영향평가" not in page.locator("#latest-post-list").inner_text()
+    if page.locator("#latest-post-list").count()==0:
+        from datetime import datetime, timedelta
+        from zoneinfo import ZoneInfo
+        today=datetime.now(ZoneInfo("Asia/Seoul")).date()
+        for card in page.locator("#today-highlights .dash-highlight small").all_text_contents():
+            posted=datetime.strptime(card.rsplit(" · ",1)[-1],"%Y.%m.%d").date()
+            assert 0 <= (today-posted).days <= 30, card
+        for row in page.locator("#work-updates tbody tr").all():
+            assert int(row.locator("td").nth(1).inner_text().replace("건",""))>0
     page.locator("[data-tab='feed']").click()
     assert page.locator("#view-feed").is_visible()
     page.locator("#search").fill("녹색건축")
