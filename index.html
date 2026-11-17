@@ -94,7 +94,7 @@
         
         <article class="guide-card"><span class="step">03 · 원문 및 첨부</span><h3>직접 원문으로 이동</h3><p>원문 주소가 확인된 자료만 직접 링크로 제공합니다. 그렇지 않으면 해당 기관의 공식 게시판으로 안내합니다.</p></article>
         <article class="guide-card"><span class="step">04 · 변경 감지 및 후보 검증</span><h3>날짜별 신규·수정 구분</h3><p>저장된 게시물 기준선과 다음 실행 자료를 비교합니다. 게시물 변경 후보는 법규 개정 확정이 아닙니다.</p></article>
-        <article class="guide-card"><span class="step">05 · 게시물 상세</span><h3>출처·공식 링크·요약</h3><p>자료 제목을 누르면 출처 기관, 공식 게시물 또는 게시판 링크와 내용을 확인할 수 있습니다. 본문 발췌가 없는 자료는 제목·게시 정보 기준의 개요로 구분합니다.</p></article>
+        <article class="guide-card"><span class="step">05 · 게시물 상세</span><h3>출처·공식 링크·요약</h3><p>자료 제목을 누르면 출처 기관, 공식 게시물 또는 게시판 링크와 내용을 확인할 수 있습니다. 본문 발췌가 없는 자료는 게시 정보의 개요로 구분합니다.</p></article>
         <article class="guide-card"><span class="step">06 · 업무 관련성</span><h3>관련 업무 분류</h3><p>자료 제목과 공식 문서 내용을 기준으로 업무별 자료를 분류합니다.</p></article>
       </div></section>
       <section class="section hide" id="view-history"><div class="section-head"><h2>점검 이력</h2></div><div id="history-list" class="coverage-list"></div></section>
@@ -171,7 +171,7 @@ function renderToday(){
   const date=document.createElement('span');date.className='date';date.textContent=dateDisplay(r.date);row.append(date);
   const center=document.createElement('div');center.className='today-content';
   const tag=document.createElement('span');tag.className='source '+(GROUP_CLASS[r.group]||'');tag.textContent=r.group;center.append(tag);
-  const channel=document.createElement('span');channel.className='today-meta';channel.style.marginLeft='8px';channel.textContent=r.channel+' · 제목기반: '+(r.document_category||'미분류');center.append(channel);
+  const channel=document.createElement('span');channel.className='today-meta';channel.style.marginLeft='8px';channel.textContent=r.channel+' · '+(r.document_category||'미분류');center.append(channel);
   const heading=document.createElement('div');heading.style.marginTop='8px';
   const url=safeLink(r.url);
   if(url){const link=document.createElement('a');link.href=url;link.target='_blank';link.rel='noopener noreferrer';link.title='공식 자료 상세페이지 열기';link.textContent=r.title+' ↗';heading.append(link)}
@@ -204,7 +204,7 @@ function showDetail(key){
  const focusedWork=(r.work_categories||[]).includes(group)?group:null;
  const badge=focusedWork||r.group;
  const location=safe?(r.link_type==='direct'?'공식 게시물':'공식 게시판'):'';
- const summaryLabel=r.summary_basis==='metadata'?'게시물 개요 · 제목·게시 정보 기준':'게시물 요약';
+ const summaryLabel=r.summary_basis==='metadata'?'게시물 개요 · 게시 정보':'게시물 요약';
  $('modal-content').innerHTML=`
  <div style="margin-top:19px"><span class="source ${GROUP_CLASS[badge]||''}">${escapeHTML(badge)}</span></div>
  <h2>${escapeHTML(r.title)}</h2>
@@ -272,17 +272,17 @@ function renderCurated(){
   const row=document.createElement('article');row.className='today-card';
   const date=document.createElement('span');date.className='date';date.textContent=dateDisplay(p.posted_at||'');
   const content=document.createElement('div');content.className='today-content';
-  const tag=document.createElement('span');tag.className='source central';tag.textContent=p.classification||'검토 참고';
+  const tag=document.createElement('span');tag.className='source central';tag.textContent='참고자료';
   content.append(tag);
   const title=document.createElement('div');title.style.marginTop='8px';
   const link=safeLink(p.document_url);
   if(link){const a=document.createElement('a');a.href=link;a.target='_blank';a.rel='noopener noreferrer';a.textContent=(p.title||'공식 자료')+' ↗';title.append(a)}
   else title.textContent=p.title||'공식 자료';
   content.append(title);
-  for(const msg of [p.summary,p.applicability,p.transitional,p.caution]){
+  for(const msg of [p.summary]){
     if(!msg)continue;const desc=document.createElement('p');desc.className='today-meta';desc.textContent=msg;content.append(desc);
   }
-  const stat=document.createElement('div');stat.className='today-meta';stat.textContent='검증 상태: '+(p.review_status||'원문 검토 전')+' · 시행일 '+(p.effective_date||'미확인')+' · 첨부 본문 '+(p.attachment_verified?'확인':'미확인');content.append(stat);
+
   row.append(date,content);root.append(row);
  }
 }
