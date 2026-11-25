@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
@@ -73,6 +74,26 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: public
+      - name: Wait for uploaded Pages artifact metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json, os, time
+          from urllib.request import Request, urlopen
+          url=os.environ["GITHUB_API_URL"]+"/repos/"+os.environ["GITHUB_REPOSITORY"]+"/actions/runs/"+os.environ["GITHUB_RUN_ID"]+"/artifacts"
+          for attempt in range(18):
+              request=Request(url,headers={"Authorization":"Bearer "+os.environ["GH_TOKEN"],"Accept":"application/vnd.github+json"})
+              with urlopen(request,timeout=20) as response:
+                  artifacts=json.load(response)["artifacts"]
+              if any(a["name"]=="github-pages" and not a["expired"] for a in artifacts):
+                  print("Pages artifact metadata is visible.")
+                  break
+              if attempt==17:
+                  raise SystemExit("Uploaded Pages artifact did not become visible; deployment not attempted.")
+              print("Waiting for Pages artifact metadata:",attempt+1)
+              time.sleep(5)
+          PY
       - name: Deploy site
         id: deployment
         uses: actions/deploy-pages@v4
