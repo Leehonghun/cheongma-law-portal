@@ -60,7 +60,7 @@ jobs:
     timeout-minutes: 10
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - name: Prepare static site only
@@ -74,9 +74,11 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: public
+          name: github-pages-${{ github.run_attempt }}
       - name: Wait for uploaded Pages artifact metadata
         env:
           GH_TOKEN: ${{ github.token }}
+          PAGES_ARTIFACT: github-pages-${{ github.run_attempt }}
         run: |
           python - <<'PY'
           import json, os, time
@@ -86,7 +88,7 @@ jobs:
               request=Request(url,headers={"Authorization":"Bearer "+os.environ["GH_TOKEN"],"Accept":"application/vnd.github+json"})
               with urlopen(request,timeout=20) as response:
                   artifacts=json.load(response)["artifacts"]
-              if any(a["name"]=="github-pages" and not a["expired"] for a in artifacts):
+              if any(a["name"]==os.environ["PAGES_ARTIFACT"] and not a["expired"] for a in artifacts):
                   print("Pages artifact metadata is visible.")
                   break
               if attempt==17:
@@ -97,6 +99,18 @@ jobs:
       - name: Deploy site
         id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
+      - name: Wait before retrying deployment metadata
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 30
+      - name: Retry deployment using the same uploaded artifact
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
 
   test_public_site:
     needs: deploy
